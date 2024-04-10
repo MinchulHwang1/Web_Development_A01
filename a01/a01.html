@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<!--
+    This source is basic source of Hi-lo game developed through HTML code.
+    It does not include CSS style code and JS prompt() function.
+    Game rule is this.
+     - Insert your name first.
+     - Choose the maximum number whatever you want
+       - the number should be higher than 1
+       - the number type should be integer
+     - Press Submit button, then the random number will be occur between 1 and the number you inserted
+     - track the random number until you find it.
+-->
+<html> 
+    
+<head>
+    <title>A01.html</title>
+    <script type = "text/JavaScript">
+        // Global variables
+        var divNumber = 0;
+        var guessCount = 0;
+        var min;
+        var max;
+
+        // ------- Function Comment -------
+        // Name     : NextDiv
+        // Purpose  : this function change the page.
+        // Input    : None
+        // Output   : None
+        // Returns  : None
+        function NextDiv(){
+            if(divNumber == 0){
+            document.getElementById("pageUserInputName").style.display = "none";
+            document.getElementById("pageUserInputMaxNum").style.display = "block";
+            }
+            if(divNumber == 1){
+                document.getElementById("pageUserInputMaxNum").style.display = "none";
+                document.getElementById("pageUserGuessNum").style.display = "block";
+            }
+            if(divNumber == 2){
+                document.body.style.backgroundColor = "aqua";           // Change back ground colour
+                document.getElementById("pageUserGuessNum").style.display = "none";
+                document.getElementById("correctPage").style.display = "block"; 
+            }
+            if(divNumber == 3){
+                document.body.style.backgroundColor = "white";          // turn back ground colour
+                document.getElementById("correctPage").style.display = "none";
+                document.getElementById("pageUserInputMaxNum").style.display = "block";
+                divNumber = 0;                                          // Initialize divNumber to go first page
+                guessCount = 0;                                         // Initialize guessCount to begin the game again
+            }
+            
+        }
+
+        // ------- Function Comment -------
+        // Name     : IsNum
+        // Purpose  : this function can check whether number or not
+        // Input    : number        the variable needed to be checked number or not
+        // Output   : None
+        // Returns  : checkNumber   bool type of variable. if the number is integer return true, or false.
+        function IsNum(number){
+            var checkNumber = false;
+            var NumberValid = /^(\d+)$/;
+            
+            if(!NumberValid.test(number)){
+                checkNumber = false;
+            }
+            else{
+                checkNumber = true;
+            }
+            return checkNumber;
+        }
+
+        // ------- Function Comment -------
+        // Name     : MakeRandomNum
+        // Purpose  : this function can make a random number
+        // Input    : ranNumber         a number which is gotten from user
+        // Output   : None
+        // Returns  : randomNumber      a random number
+        function MakeRandomNum(ranNumber){
+            var min = 1;
+            var randomNumber = 0;
+            var max = document.getElementById("Num").value;
+            randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+            
+            return randomNumber;
+        }
+
+        // ------- Function Comment -------
+        // Name     : SubmitNum
+        // Purpose  : this function is for the button called 'submit', and it can action each situation wheh user put numbers
+        // Input    : whichNum         a button variable
+        // Output   : Messages that fit on each situation
+        // Returns  : None
+        function SubmitNum(whichNum){
+            var maxNum = document.getElementById("Num").value;
+            var guessNumber = document.getElementById("GuessNum").value;
+            var userName = document.getElementById("Name").value;
+            document.getElementById("inputNumError").innerHTML = "";
+            document.getElementById("inputRandomError").innerHTML = "";
+
+            var maxNumInt = parseInt(maxNum, 10);       // Change the number which is gotten by user first time into number type
+            
+            document.getElementById("guessUserName").innerHTML = "OK " + userName;
+            document.getElementById("informRange").innerHTML = "Your allowable guessing range is any value bewteen 1 and " + maxNum;
+            
+            // Check the number whether it is integer number or not.
+            if(IsNum(maxNum) == false){
+                document.getElementById("inputNumError").innerHTML = "Error : Please Enter integer Number";
+            }
+            
+            else{
+                if(whichNum == "Num"){      //when user input the maximum number
+
+                    if(maxNumInt == 1){     
+                        document.getElementById("inputNumError").innerHTML = "Maxmum number is lager than 1";
+                    }
+                    else{
+                        // Change the page and make random number
+                        divNumber++;        
+                        randomNumber = MakeRandomNum(maxNum);
+                        NextDiv();
+                    }
+                }
+                
+                if(whichNum == "GuessNum"){         //when user try to guess number
+                    var randomNumberInt = parseInt(randomNumber ,10);
+                    var guessNumberInt = parseInt(guessNumber, 10);
+                    var guessNumberPlus = guessNumberInt + 1;
+                    var guessNumberMinus = guessNumberInt - 1;
+
+                    if(IsNum(guessNumber) == false){
+                        document.getElementById("inputRandomError").innerHTML = "Please Enter integer Number";
+                    }
+
+                    else{
+                        if((guessNumberInt <1) || (guessNumberInt > maxNumInt)){
+                            document.getElementById("inputRandomError").innerHTML = "Guess number is out of range. please insert again.";
+                        }
+                        else if(guessNumberInt < randomNumber){
+                            if(guessCount == 0){
+                                max = maxNumInt;
+                                document.getElementById("inputRandomError").innerHTML = "Your allowable guessing range is any value between " + guessNumberPlus + " and " + max;
+                                min = guessNumberPlus;
+                                guessCount++;
+                                document.getElementById("GuessNum").value = "";     // clean up text box
+                            }
+                            else{
+                                min = guessNumberPlus;
+                                document.getElementById("inputRandomError").innerHTML = "Your allowable guessing range is any value between " + min + " and " + max;
+                                document.getElementById("GuessNum").value = "";     // clean up text box
+                            }
+                        }
+                        else if(guessNumberInt > randomNumber){
+                            if(guessCount == 0){
+                                min = 1;
+                                document.getElementById("inputRandomError").innerHTML = "Your allowable guessing range is any value between " + min + " and " + guessNumberMinus;
+                                max = guessNumberMinus;
+                                guessCount++;
+                                document.getElementById("GuessNum").value = "";     // clean up text box
+                            }
+                            else{
+                                max = guessNumberMinus;
+                                document.getElementById("inputRandomError").innerHTML = "Your allowable guessing range is any value between " + min+ " and " + max;
+                                document.getElementById("GuessNum").value = "";     // clean up text box
+                            }
+                        }
+                        else{
+                            
+                            document.getElementById("GuessNum").value = "";     // clean up text box
+                            divNumber++;
+                            NextDiv();
+                        }
+                    }
+                } 
+                
+                if(whichNum == "play"){     // If user want to play more
+                    document.getElementById("Num").value = "";      // clean up text box
+                    divNumber++;
+                    NextDiv();
+                }
+            }
+        }
+
+
+        // ------- Function Comment -------
+        // Name     : SubmitName
+        // Purpose  : this function is for the button called 'submit', and it can action each situation when user inserts name
+        // Input    : whichOne         a button variable
+        // Output   : Messages that fit on each situation
+        // Returns  : None
+        function SubmitName(whichOne){
+            var lettersNSpaces = /^[A-Za-z\s]+$/;       // A range of letter
+            var whichName = document.getElementById("Name").value;
+            document.getElementById("inputNameError").innerHTML = "";
+
+            // Check name is the letter or not
+            if((whichOne == "Name") && (whichName.length == 0 )){
+                document.getElementById("inputNameError").innerHTML = "Please Enter Your name";
+            }
+            else{
+                if(whichName.match(lettersNSpaces)){
+                    NextDiv();
+                }
+                else{
+                    document.getElementById("inputNameError").innerHTML = "Name must be consisted of <i>Alpha</i> only.";
+                }
+            }
+            document.getElementById("callName").innerHTML = "OK " + whichName;
+        }
+    </script>
+</head>
+
+
+<body id = "bodyId">
+    <div id = "pageUserInputName">
+        <p> 
+            <h1>Let's Play <i>Hi-lo</i> game!</h1>
+            <br>
+            What is your name? : 
+            <input id = "Name" name = "promptName" type = "text" >
+            <br>
+            <div>
+                <input id = "SubmitName" type = "button" value = "submit" onclick="SubmitName('Name');">
+            </div>
+        </p>
+        <div id = "inputNameError" style = "color: red;"></div>
+    </div>
+
+    <div id = "pageUserInputMaxNum" style="display: none;">
+        <p> <h1><div id = callName></div></h1>
+            Insert the Maxmum number you want : 
+            <input id = "Num" type = "text" name = "promptNum">
+            <br>
+            <div>
+                <input id = "SubmitNum" type = "button" value = "submit" onclick="SubmitNum('Num');">
+            </div>
+            <div id = "inputNumError" style = "color: red;"></div>
+        </p>
+    </div>
+
+    <div id = "pageUserGuessNum" style="display: none;">
+        <p> <h1><div id = "guessUserName"></div> </h1>
+            
+            <h2> Let's guess Number</h2>
+            <div id = "informRange"></div>
+            Guess the number : 
+            <input id = "GuessNum" type = "text" name = "promptGuessNum">
+            <br>
+            <div>
+                <input id = "submitGuessNum" type = "button" value = "Make this Guess" onclick="SubmitNum('GuessNum');">
+            </div>
+            <div id = "inputRandomError" style = "color: red;"></div>
+        </p>
+    </div>
+    
+    <div id = "correctPage" style="display: none;">
+        <p ><h1>You Won! You guessed the <b>number</b>!!</h1>
+            <br>
+            <div>
+                <input id = "PlayAgainButton" type = "button" value = "Play Again" onclick="SubmitNum('play');">
+            </div>
+        </p>
+    </div>
+
+</body>
+
+</html>
